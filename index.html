@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小学1〜6年生向けおすすめ本 × カーリル蔵書照会</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">図書カード / LIBRARY LOOKUP CARD</p>
+    <h1>小学1〜6年生 おすすめ図書 蔵書照会</h1>
+    <p class="lede">
+      2015年以降に刊行された小学1〜6年生向けの本36冊を、学年で絞り込みながら、
+      <a href="https://calil.jp" target="_blank" rel="noopener">カーリル</a>で指定した地域の図書館の蔵書と照合します。
+    </p>
+  </div>
+</header>
+
+<main>
+
+  <section class="card" aria-labelledby="step1-title">
+    <div class="card-tab">
+      <span class="tab-num">01</span>
+      <h2 id="step1-title">詳細設定(APIキー)<i class="opt">通常は変更不要</i></h2>
+    </div>
+    <div class="card-body">
+      <p class="help">
+        このツール専用の共有APIキーがあらかじめ設定されているため、<strong>ご自身でAPIキーを
+        取得・入力する必要はありません</strong>。図書館の検索や蔵書確認も、そのまま使えます。
+      </p>
+      <details id="appkeyDetails">
+        <summary>APIキーを自分のものに変更したい場合(任意)
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">appkey</span>
+            <input type="password" id="appkey" placeholder="共有キーを使用中(空欄のまま推奨)" autocomplete="off">
+          </label>
+          <span class="status-line" id="appkeySavedNotice" role="status"></span>
+        </div>
+        <p class="help">
+          共有のAPIキーは、このツールをアプリ単位で登録したものです(個人のアカウントには
+          紐づいていません)。カーリルの蔵書チェックAPIの利用上限は<strong>アクセス元ごと(≒利用者ごと)</strong>に
+          カウントされるため、共有していても他の利用者と取り合いになることはありません。
+          もしご自身のAPIキーを使いたい場合は、
+          <a href="https://calil.jp/doc/api_ref.html" target="_blank" rel="noopener">カーリルAPI仕様書ページ</a>
+          の「新しいアプリケーションの追加」から無料で発行し、ここに貼り付けてください。
+          一度入力すればこの端末のブラウザに自動保存され、次回も入力済みの状態になります。
+          外部には送信されず、この端末のブラウザ内(localStorage)にのみ保存されます。
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="step2-title">
+    <div class="card-tab">
+      <span class="tab-num">02</span>
+      <h2 id="step2-title">地域・図書館を指定する</h2>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">都道府県<i>ドロップダウン</i></span>
+          <select id="pref"></select>
+        </label>
+        <label class="field">
+          <span class="field-label">市区町村<i>ワードサーチ</i></span>
+          <input type="text" id="city" placeholder="例: 国立市">
+        </label>
+        <button type="button" id="searchLibBtn" class="btn">この地域の図書館を検索</button>
+      </div>
+      <p class="status-line" id="libStatus" role="status"></p>
+
+      <div id="libResultsWrap" class="lib-results-wrap hidden">
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">図書館名で絞り込み<i>ワードサーチ</i></span>
+            <input type="text" id="branchFilter" placeholder="例: 中央">
+          </label>
+        </div>
+        <div id="libResults"></div>
+      </div>
+
+      <div class="field-row">
+        <a id="libListLink" class="btn" href="#" target="_blank" rel="noopener">この地域の図書館一覧をカーリルで見る</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="step3-title">
+    <div class="card-tab">
+      <span class="tab-num">03</span>
+      <h2 id="step3-title">本のリストを絞り込む</h2>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <span class="field-label">学年<i>チェックボックス(複数選択可)</i></span>
+          <div class="grade-checks" id="gradeChecks"></div>
+        </div>
+      </div>
+      <p class="help">
+        このツールでは、年齢別に紹介しているリソース(絵本ナビ等)も参照できるよう、
+        小学校1年生=7歳・2年生=8歳・3年生=9歳・4年生=10歳・5年生=11歳・6年生=12歳、
+        として学年と年齢を対応づけています。
+      </p>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">発行年<i>ドロップダウン</i></span>
+          <select id="minYear"></select>
+        </label>
+        <label class="field">
+          <span class="field-label">タイトル・著者<i>ワードサーチ</i></span>
+          <input type="text" id="keyword" placeholder="例: ゾロリ">
+        </label>
+        <button type="button" id="checkBtn" class="btn btn-primary">選択した図書館の蔵書状況を確認する</button>
+      </div>
+      <p class="status-line" id="bookStatus" role="status"></p>
+
+      <div id="seriesWrap" class="series-wrap hidden">
+        <button type="button" id="seriesToggle" class="excluded-toggle" aria-expanded="false">
+          シリーズで一括操作 ▾
+        </button>
+        <div id="seriesList" class="series-list hidden"></div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="bookTable">
+          <thead>
+            <tr>
+              <th class="col-check"><span class="sr-only">確認対象</span>☑</th>
+              <th>タイトル</th>
+              <th>著者</th>
+              <th>出版社</th>
+              <th>発行日</th>
+              <th>ページ数</th>
+              <th>ISBN</th>
+              <th>蔵書状況</th>
+              <th>この本を</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="excludedWrap" class="excluded-wrap hidden">
+        <button type="button" id="excludedToggle" class="excluded-toggle" aria-expanded="false">
+          非表示にした本 <span id="excludedCount">0</span>件 ▾
+        </button>
+        <div id="excludedList" class="excluded-list hidden"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="step4-title">
+    <div class="card-tab">
+      <span class="tab-num">04</span>
+      <h2 id="step4-title">本を追加で探す<i class="opt">任意</i></h2>
+    </div>
+    <div class="card-body">
+      <p class="help">
+        Google Books APIでリストにない本を検索し、追加できます。ネットワーク環境によってはCORS制限で動作しないことがあります。
+      </p>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">キーワード</span>
+          <input type="text" id="gbKeyword" placeholder="例: 恐竜 図鑑">
+        </label>
+        <button type="button" id="gbSearchBtn" class="btn btn-ghost">検索</button>
+      </div>
+      <p class="status-line" id="gbStatus" role="status"></p>
+      <div id="gbResults"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  本のデータは各種書誌情報をもとにした簡易リストです。図書館の検索・蔵書状況の確認には
+  <a href="https://calil.jp/doc/api_ref.html" target="_blank" rel="noopener">カーリル図書館API</a>
+  (<code>https://api.calil.jp/library</code>・<code>https://api.calil.jp/check</code>、いずれも要APIキー)を
+  使用しています。各本の「カーリルで見る →」(APIキー未入力時)は
+  <a href="https://calil.jp/doc/api_openurl.html" target="_blank" rel="noopener">OpenURL for カーリル</a>
+  経由の書誌ページへのリンクです。API仕様書の「カーリルへのリンク」の定めに従い、APIで取得した図書館名・
+  貸出状況にはすべてカーリルの該当ページへのリンクを付与しています。蔵書状況・予約は
+  <a href="https://calil.jp" target="_blank" rel="noopener">カーリル(calil.jp)</a>および各図書館の情報が正となります。
+  APIキー・「読んだ・苦手」の記録はこの端末のブラウザ内(localStorage)にのみ保存されます。
+</footer>
+
+<script src="prefectures.js"></script>
+<script src="books.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
