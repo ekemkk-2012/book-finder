@@ -197,7 +197,7 @@ function saveSelectedGrades(gradeSet) {
 /* ------------------------------------------------------------------
  * 画面のロジック
  * ------------------------------------------------------------------ */
-const VISIBLE_LIMIT = 10;
+const VISIBLE_LIMIT = 30;
 
 const state = {
   minYear: 2015,
