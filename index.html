@@ -24,40 +24,7 @@
   <section class="card" aria-labelledby="step1-title">
     <div class="card-tab">
       <span class="tab-num">01</span>
-      <h2 id="step1-title">詳細設定(APIキー)<i class="opt">通常は変更不要</i></h2>
-    </div>
-    <div class="card-body">
-      <p class="help">
-        このツール専用の共有APIキーがあらかじめ設定されているため、<strong>ご自身でAPIキーを
-        取得・入力する必要はありません</strong>。図書館の検索や蔵書確認も、そのまま使えます。
-      </p>
-      <details id="appkeyDetails">
-        <summary>APIキーを自分のものに変更したい場合(任意)
-        <div class="field-row">
-          <label class="field">
-            <span class="field-label">appkey</span>
-            <input type="password" id="appkey" placeholder="共有キーを使用中(空欄のまま推奨)" autocomplete="off">
-          </label>
-          <span class="status-line" id="appkeySavedNotice" role="status"></span>
-        </div>
-        <p class="help">
-          共有のAPIキーは、このツールをアプリ単位で登録したものです(個人のアカウントには
-          紐づいていません)。カーリルの蔵書チェックAPIの利用上限は<strong>アクセス元ごと(≒利用者ごと)</strong>に
-          カウントされるため、共有していても他の利用者と取り合いになることはありません。
-          もしご自身のAPIキーを使いたい場合は、
-          <a href="https://calil.jp/doc/api_ref.html" target="_blank" rel="noopener">カーリルAPI仕様書ページ</a>
-          の「新しいアプリケーションの追加」から無料で発行し、ここに貼り付けてください。
-          一度入力すればこの端末のブラウザに自動保存され、次回も入力済みの状態になります。
-          外部には送信されず、この端末のブラウザ内(localStorage)にのみ保存されます。
-        </p>
-      </details>
-    </div>
-  </section>
-
-  <section class="card" aria-labelledby="step2-title">
-    <div class="card-tab">
-      <span class="tab-num">02</span>
-      <h2 id="step2-title">地域・図書館を指定する</h2>
+      <h2 id="step1-title">地域・図書館を指定する</h2>
     </div>
     <div class="card-body">
       <div class="field-row">
@@ -94,10 +61,10 @@
     </div>
   </section>
 
-  <section class="card" aria-labelledby="step3-title">
+  <section class="card" aria-labelledby="step2-title">
     <div class="card-tab">
-      <span class="tab-num">03</span>
-      <h2 id="step3-title">本のリストを絞り込む</h2>
+      <span class="tab-num">02</span>
+      <h2 id="step2-title">本のリストを絞り込む</h2>
     </div>
     <div class="card-body">
       <div class="field-row">
@@ -159,10 +126,10 @@
     </div>
   </section>
 
-  <section class="card" aria-labelledby="step4-title">
+  <section class="card" aria-labelledby="step3-title">
     <div class="card-tab">
-      <span class="tab-num">04</span>
-      <h2 id="step4-title">本を追加で探す<i class="opt">任意</i></h2>
+      <span class="tab-num">03</span>
+      <h2 id="step3-title">本を追加で探す<i class="opt">任意</i></h2>
     </div>
     <div class="card-body">
       <p class="help">
@@ -185,13 +152,13 @@
 <footer>
   本のデータは各種書誌情報をもとにした簡易リストです。図書館の検索・蔵書状況の確認には
   <a href="https://calil.jp/doc/api_ref.html" target="_blank" rel="noopener">カーリル図書館API</a>
-  (<code>https://api.calil.jp/library</code>・<code>https://api.calil.jp/check</code>、いずれも要APIキー)を
-  使用しています。各本の「カーリルで見る →」(APIキー未入力時)は
+  (<code>https://api.calil.jp/library</code>・<code>https://api.calil.jp/check</code>)を
+  使用しています。各本の「カーリルで見る →」は
   <a href="https://calil.jp/doc/api_openurl.html" target="_blank" rel="noopener">OpenURL for カーリル</a>
   経由の書誌ページへのリンクです。API仕様書の「カーリルへのリンク」の定めに従い、APIで取得した図書館名・
   貸出状況にはすべてカーリルの該当ページへのリンクを付与しています。蔵書状況・予約は
   <a href="https://calil.jp" target="_blank" rel="noopener">カーリル(calil.jp)</a>および各図書館の情報が正となります。
-  APIキー・「読んだ・苦手」の記録はこの端末のブラウザ内(localStorage)にのみ保存されます。
+  選択した地域・図書館や「読んだ・苦手」の記録はこの端末のブラウザ内(localStorage)にのみ保存されます。
 </footer>
 
 <script src="prefectures.js"></script>

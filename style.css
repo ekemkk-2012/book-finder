@@ -144,16 +144,6 @@ h1{
 .help a{ color:var(--accent); }
 .help strong{ color:var(--ink); }
 
-details{ margin-top:.8rem; }
-details summary{
-  cursor:pointer; font-size:.85rem; color:var(--accent); font-weight:600;
-  padding:.3rem 0; list-style:none;
-}
-details summary::-webkit-details-marker{ display:none; }
-details summary::before{ content:"▸ "; }
-details[open] summary::before{ content:"▾ "; }
-details[open] summary{ margin-bottom:.3rem; }
-
 /* ---------- fields ---------- */
 .field-row{
   display:flex; flex-wrap:wrap; align-items:end; gap:.9rem;

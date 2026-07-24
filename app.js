@@ -165,18 +165,12 @@ function saveLibraryPref(pref) {
  * 共有APIキー
  * このツール専用にアプリ登録した共有キーです(個人アカウントには紐づきません)。
  * カーリルの蔵書チェックAPIの利用上限はアクセス元(≒利用者)ごとにカウントされる
- * ため、共有していても他の利用者と取り合いになりません。利用者が自分のAPIキーを
- * 入力した場合はそちらを優先します。
+ * ため、共有していても他の利用者と取り合いになりません。
  * ------------------------------------------------------------------ */
 const SHARED_APPKEY = "10965e7b783d571dd70fe7e333cf7268";
 
 function getAppkey() {
-  const custom = el.appkey.value.trim();
-  return custom || SHARED_APPKEY;
-}
-
-function updateAppkeySavedNotice() {
-  el.appkeySavedNotice.textContent = el.appkey.value.trim() ? "✓ 独自のAPIキーを保存済み" : "";
+  return SHARED_APPKEY;
 }
 
 /* ------------------------------------------------------------------
@@ -220,7 +214,6 @@ const el = {};
 
 function bindEls() {
   [
-    "appkey", "appkeySavedNotice",
     "pref", "city", "searchLibBtn", "libStatus", "libResultsWrap", "libResults", "branchFilter", "libListLink",
     "gradeChecks", "minYear", "keyword", "bookStatus", "checkBtn",
     "seriesWrap", "seriesToggle", "seriesList",
@@ -714,15 +707,6 @@ function init() {
   if (savedLibPref && savedLibPref.pref) el.pref.value = savedLibPref.pref;
   if (savedLibPref && savedLibPref.city) el.city.value = savedLibPref.city;
   updateLibListLink();
-
-  let savedKey = "";
-  try { savedKey = localStorage.getItem("calil_appkey") || ""; } catch (e) { /* ストレージ不可の環境 */ }
-  if (savedKey) el.appkey.value = savedKey;
-  el.appkey.addEventListener("input", () => {
-    try { localStorage.setItem("calil_appkey", el.appkey.value.trim()); } catch (e) { /* noop */ }
-    updateAppkeySavedNotice();
-  });
-  updateAppkeySavedNotice();
 
   el.pref.addEventListener("change", updateLibListLink);
   el.city.addEventListener("input", updateLibListLink);
