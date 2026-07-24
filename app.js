@@ -212,6 +212,8 @@ const state = {
   branchFilter: "",
   exclusions: loadExclusions(), // { isbn: { reason: "read"|"disliked", title } }
   selectedGrades: loadSelectedGrades(),
+  lastCheckBooks: {}, // { isbn: perSystem } の累積(蔵書チェック結果の再描画用)
+  lastCheckSystemids: [],
 };
 
 const el = {};
@@ -460,17 +462,22 @@ function renderLibraryResults() {
     const div = document.createElement("div");
     div.className = "lib-item";
     const checked = state.selectedSystemIds.has(sys.systemid) ? "checked" : "";
-    const branchesHtml = sys.branches.map((br) => `
+    const matchingBranches = kw ? sys.branches.filter((br) => br.name.toLowerCase().includes(kw)) : [];
+    const branchesToShow = matchingBranches.length ? matchingBranches : sys.branches;
+    const branchesHtml = branchesToShow.map((br) => `
       <div class="lib-branch">
         <span>${escapeHtml(br.name)}${br.address ? " ・ " + escapeHtml(br.address) : ""}</span>
         ${br.libid ? `<a href="${calilLibraryPageUrl(br.libid, br.name)}" target="_blank" rel="noopener">カーリルで見る →</a>` : ""}
       </div>
     `).join("");
+    const countLabel = branchesToShow.length === sys.branches.length
+      ? `${sys.branches.length}館`
+      : `${branchesToShow.length}/${sys.branches.length}館(絞り込み中)`;
     div.innerHTML = `
       <label class="lib-item-head">
         <input type="checkbox" class="lib-check" value="${escapeHtml(sys.systemid)}" ${checked}>
         <span class="lib-name">${escapeHtml(sys.systemname || sys.systemid)}</span>
-        <span class="lib-sub">${escapeHtml(sys.systemid)} ・ ${sys.branches.length}館</span>
+        <span class="lib-sub">${escapeHtml(sys.systemid)} ・ ${countLabel}</span>
       </label>
       <div class="lib-branches">${branchesHtml}</div>
     `;
@@ -588,32 +595,49 @@ async function handleCheckAvailability() {
   }
 }
 
-function applyCheckResult(data, systemids) {
-  if (!data || !data.books) return;
-  for (const isbn of Object.keys(data.books)) {
-    const tr = el.bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
-    if (!tr) continue;
-    const cell = tr.querySelector(".status-cell");
-    const perSystem = data.books[isbn];
-    const parts = [];
-    for (const sid of systemids) {
-      const info = perSystem[sid];
-      if (!info) continue;
-      const sysMeta = state.librarySystems.find((s) => s.systemid === sid);
-      const sysName = sysMeta ? sysMeta.systemname : sid;
-      let line = `<span class="pill ${pillClass(info.status)}">${escapeHtml(statusLabel(info.status))}</span><span class="status-detail">${escapeHtml(sysName)}</span>`;
-      if (info.libkey && Object.keys(info.libkey).length) {
-        const libkeyText = Object.entries(info.libkey)
+function renderCheckCell(isbn, perSystem, systemids) {
+  const tr = el.bookTableBody.querySelector(`tr[data-isbn="${isbn}"]`);
+  if (!tr) return;
+  const cell = tr.querySelector(".status-cell");
+  const parts = [];
+  for (const sid of systemids) {
+    const info = perSystem[sid];
+    if (!info) continue;
+    const sysMeta = state.librarySystems.find((s) => s.systemid === sid);
+    const sysName = sysMeta ? sysMeta.systemname : sid;
+    let line = `<span class="pill ${pillClass(info.status)}">${escapeHtml(statusLabel(info.status))}</span><span class="status-detail">${escapeHtml(sysName)}</span>`;
+    if (info.libkey && Object.keys(info.libkey).length) {
+      const kw = state.branchFilter.trim().toLowerCase();
+      const entries = Object.entries(info.libkey).filter(([branch]) => !kw || branch.toLowerCase().includes(kw));
+      if (entries.length) {
+        const libkeyText = entries
           .map(([branch, st]) => `<a href="${calilLibrarySearchUrl(sid, branch)}" target="_blank" rel="noopener">${escapeHtml(branch)}</a>=${escapeHtml(st)}`)
           .join("、 ");
         line += `<br><span class="status-detail">${libkeyText}</span>`;
       }
-      if (info.reserveurl) {
-        line += ` <a href="${info.reserveurl}" target="_blank" rel="noopener">予約/詳細</a>`;
-      }
-      parts.push(`<div>${line}</div>`);
     }
-    cell.innerHTML = parts.length ? parts.join("") : "情報なし";
+    if (info.reserveurl) {
+      line += ` <a href="${info.reserveurl}" target="_blank" rel="noopener">予約/詳細</a>`;
+    }
+    parts.push(`<div>${line}</div>`);
+  }
+  cell.innerHTML = parts.length ? parts.join("") : "情報なし";
+}
+
+function applyCheckResult(data, systemids) {
+  if (!data || !data.books) return;
+  Object.assign(state.lastCheckBooks, data.books);
+  state.lastCheckSystemids = systemids;
+  for (const isbn of Object.keys(data.books)) {
+    renderCheckCell(isbn, data.books[isbn], systemids);
+  }
+}
+
+/* 図書館名フィルタの変更時に、既に取得済みの蔵書チェック結果を再描画する */
+function reapplyStoredCheckResults() {
+  if (!state.lastCheckSystemids.length) return;
+  for (const isbn of Object.keys(state.lastCheckBooks)) {
+    renderCheckCell(isbn, state.lastCheckBooks[isbn], state.lastCheckSystemids);
   }
 }
 
@@ -711,6 +735,7 @@ function init() {
   el.branchFilter.addEventListener("input", () => {
     state.branchFilter = el.branchFilter.value;
     renderLibraryResults();
+    reapplyStoredCheckResults();
   });
   el.minYear.addEventListener("change", () => {
     state.minYear = parseInt(el.minYear.value, 10);
