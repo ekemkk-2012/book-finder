@@ -10,7 +10,7 @@ const AGE_TO_GRADE = { 7: 1, 8: 2, 9: 3, 10: 4, 11: 5, 12: 6 };
 
 const SEED_BOOKS = [
   { title: "ふしぎ駄菓子屋 銭天堂4", author: "廣嶋玲子 作／jyajya 絵", publisher: "偕成社", isbn: "9784036356409", pubdate: "2015-05-19", pages: 150, series: "ふしぎ駄菓子屋 銭天堂", grades: [3,4,5] },
-  { title: "がっこうのおばけずかん おばけにゅうがくしき", author: "斉藤洋 作／宮本えつよし 絵", publisher: "講談社", isbn: "9784061996052", pubdate: "2015-08-26", pages: 90, series: null, grades: [1,2,3] },
+  { title: "がっこうのおばけずかん おばけにゅうがくしき", author: "斉藤洋 作／宮本えつよし 絵", publisher: "講談社", isbn: "9784061996052", pubdate: "2015-08-26", pages: 90, series: "おばけずかん", grades: [1,2,3] },
   { title: "ふしぎ駄菓子屋 銭天堂5", author: "廣嶋玲子 作／jyajya 絵", publisher: "偕成社", isbn: "9784036356508", pubdate: "2015-09-01", pages: 150, series: "ふしぎ駄菓子屋 銭天堂", grades: [3,4,5] },
   { title: "おしりたんてい ププッ おおどろぼうあらわる!", author: "トロル 作・絵", publisher: "ポプラ社", isbn: "9784591146743", pubdate: "2015-10-07", pages: 40, series: "おしりたんてい", grades: [1,2,3] },
   { title: "ふしぎ駄菓子屋 銭天堂6", author: "廣嶋玲子 作／jyajya 絵", publisher: "偕成社", isbn: "9784036356607", pubdate: "2016-06-01", pages: 150, series: "ふしぎ駄菓子屋 銭天堂", grades: [3,4,5] },

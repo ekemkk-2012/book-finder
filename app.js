@@ -197,6 +197,8 @@ function saveSelectedGrades(gradeSet) {
 /* ------------------------------------------------------------------
  * 画面のロジック
  * ------------------------------------------------------------------ */
+const VISIBLE_LIMIT = 10;
+
 const state = {
   minYear: 2015,
   keyword: "",
@@ -208,6 +210,8 @@ const state = {
   selectedGrades: loadSelectedGrades(),
   lastCheckBooks: {}, // { isbn: perSystem } の累積(蔵書チェック結果の再描画用)
   lastCheckSystemids: [],
+  shownIsbns: [], // 現在表示中の候補(苦手・既読にすると自動で次の候補に入れ替わる)
+  showAll: false, // 「すべて表示」モードかどうか
 };
 
 const el = {};
@@ -215,7 +219,7 @@ const el = {};
 function bindEls() {
   [
     "pref", "city", "searchLibBtn", "libStatus", "libResultsWrap", "libResults", "branchFilter", "libListLink",
-    "gradeChecks", "minYear", "keyword", "bookStatus", "checkBtn",
+    "gradeChecks", "minYear", "keyword", "bookStatus", "checkBtn", "showAllToggle",
     "seriesWrap", "seriesToggle", "seriesList",
     "excludedWrap", "excludedToggle", "excludedCount", "excludedList",
     "gbKeyword", "gbSearchBtn", "gbResults", "gbStatus",
@@ -233,6 +237,7 @@ function renderGradeChecks() {
       if (ev.target.checked) state.selectedGrades.add(g);
       else state.selectedGrades.delete(g);
       saveSelectedGrades(state.selectedGrades);
+      resetVisibleSlate();
       renderBookTable();
       renderSeriesPanel();
     });
@@ -315,8 +320,31 @@ function restoreBook(isbn) {
   renderSeriesPanel();
 }
 
+/* 表示中の候補(shownIsbns)を、条件に合わなくなった本を除きつつ、
+ * 上限(VISIBLE_LIMIT)まで条件に合う未表示の本で埋め直す */
+function refillVisibleSlate(pool) {
+  const poolIsbns = new Set(pool.map((b) => b.isbn));
+  state.shownIsbns = state.shownIsbns.filter((isbn) => poolIsbns.has(isbn));
+  for (const b of pool) {
+    if (state.shownIsbns.length >= VISIBLE_LIMIT) break;
+    if (!state.shownIsbns.includes(b.isbn)) state.shownIsbns.push(b.isbn);
+  }
+}
+
+function resetVisibleSlate() {
+  state.shownIsbns = [];
+}
+
 function renderBookTable() {
-  const books = filteredBooks();
+  const pool = filteredBooks();
+  let books;
+  if (state.showAll) {
+    books = pool;
+  } else {
+    refillVisibleSlate(pool);
+    const byIsbn = new Map(allBooks().map((b) => [b.isbn, b]));
+    books = state.shownIsbns.map((isbn) => byIsbn.get(isbn)).filter(Boolean);
+  }
   el.bookTableBody.innerHTML = "";
   for (const b of books) {
     const tr = document.createElement("tr");
@@ -339,10 +367,18 @@ function renderBookTable() {
     tr.querySelector(".pill-btn.disliked").addEventListener("click", () => excludeBook(b, "disliked"));
     el.bookTableBody.appendChild(tr);
   }
-  el.bookStatus.textContent = books.length ? `${books.length}冊表示中` : "";
   if (books.length === 0) {
     el.bookTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">条件に一致する本がありません。発行年・キーワード・除外設定を見直してください。</td></tr>`;
+    el.bookStatus.textContent = "";
+  } else if (state.showAll) {
+    el.bookStatus.textContent = `${books.length}冊表示中(すべて表示モード)`;
+  } else {
+    el.bookStatus.textContent = pool.length > books.length
+      ? `${pool.length}冊中${books.length}冊を表示中(「苦手」「読んだ」にすると自動で次の候補に入れ替わります)`
+      : `${books.length}冊表示中`;
   }
+  el.showAllToggle.textContent = state.showAll ? `候補を${VISIBLE_LIMIT}件ずつ表示する` : "すべて表示する";
+  el.showAllToggle.classList.toggle("hidden", pool.length <= VISIBLE_LIMIT);
 }
 
 /* ------------------------------------------------------------------
@@ -723,10 +759,17 @@ function init() {
   });
   el.minYear.addEventListener("change", () => {
     state.minYear = parseInt(el.minYear.value, 10);
+    resetVisibleSlate();
     renderBookTable();
   });
   el.keyword.addEventListener("input", () => {
     state.keyword = el.keyword.value;
+    resetVisibleSlate();
+    renderBookTable();
+  });
+  el.showAllToggle.addEventListener("click", () => {
+    state.showAll = !state.showAll;
+    if (!state.showAll) resetVisibleSlate();
     renderBookTable();
   });
   el.checkBtn.addEventListener("click", handleCheckAvailability);
