@@ -733,7 +733,6 @@ function init() {
   bindEls();
   initPrefectureDropdown();
   initYearDropdown();
-  el.city.value = "国立市";
   renderGradeChecks();
   renderBookTable();
   renderExcludedList();
