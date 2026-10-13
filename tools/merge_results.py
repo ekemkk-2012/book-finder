@@ -33,6 +33,30 @@ def clean_title(t):
     return t.replace("！", "!").replace("？", "?").replace("＆", "&").replace("&amp;", "&")
 
 
+FIXABLE = {"title", "author", "publisher", "pubdate", "pages", "series", "grades"}
+
+
+def normalize_fix(field, value):
+    """照合結果の訂正値を検証・正規化する。採用できない値は None"""
+    if field not in FIXABLE:
+        return None
+    s = str(value).strip()
+    if field == "grades":
+        try:
+            g = fmt_grades(value)
+        except ValueError:
+            return None
+        return g if g and all(1 <= int(x) <= 6 for x in g.split("|")) else None
+    if field == "pubdate":
+        m = re.fullmatch(r"(\d{4})-(\d{2})(?:-(\d{2}))?", s)
+        return f"{m.group(1)}-{m.group(2)}-{m.group(3) or '01'}" if m else None
+    if field == "pages":
+        return s if s.isdigit() and int(s) > 0 else None
+    if field == "title":
+        return clean_title(s) or None
+    return s or None
+
+
 def status_for(sources):
     return "verified" if len(sources) >= 2 else "single_source"
 
@@ -57,16 +81,16 @@ def main():
             note = (res.get("note") or "").strip()
             if verdict in ("OK", "FIX"):
                 for k, v in (res.get("fixes") or {}).items():
-                    if k == "grades":
-                        r[k] = fmt_grades(v)
-                    elif k == "title":
-                        r[k] = clean_title(str(v))
-                    elif k in r:
-                        r[k] = str(v)
+                    value = normalize_fix(k, v)
+                    if value is None:
+                        stats["skipped"].append(f"訂正値を採用せず {r['isbn']} {k}={v!r}")
+                    else:
+                        r[k] = value
                 srcs = list(dict.fromkeys(sources_list(r["verify_sources"]) + [s for s in res.get("sources", []) if s]))
                 r["verify_sources"] = " | ".join(srcs)
                 r["verify_status"] = status_for(srcs)
-                r["verify_note"] = note
+                if note:
+                    r["verify_note"] = (r["verify_note"] + " / " if r["verify_note"] else "") + note
                 stats[r["verify_status"]] += 1
             elif verdict == "WRONG":
                 r["verify_status"] = "wrong"
