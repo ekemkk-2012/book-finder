@@ -79,6 +79,22 @@ GitHub Pagesで公開しているため、ログインなしでリンクを知�
 - 確実に「この画面の中で」貸出状況を表示したい場合は、上記の手順2にある共有
   APIキーによる方法をおすすめします。こちらは実際に動作確認済みです。
 
+## 書籍リストの管理(books.csv)
+
+書籍リストの正本は `books.csv` です。`books.js` はそこから自動生成するため、直接編集しないでください。
+
+| 列 | 内容 |
+| --- | --- |
+| isbn / title / author / publisher / pubdate / pages / series | 書誌情報(pubdateは`YYYY-MM-DD`、seriesは単独作品なら空) |
+| grades | 対象学年を`|`区切りで(例: `1|2|3`) |
+| verify_status | `verified`(ISBNチェックサム+2つ以上の独立した情報源でISBN・書名・版を照合済み) / `single_source`(情報源1つのみ。要再確認) / `unverified`(未照合) / `wrong`・`duplicate_edition`(誤り・別版の重複。`books.js`には出力しない) |
+| verify_sources / verify_note | 照合に使った情報源(`|`区切り)と補足 |
+
+```sh
+python3 tools/check_books.py    # ISBNチェックサム・重複・必須項目・books.jsとの一致を検査し、照合状況と学年別冊数を表示
+python3 tools/build_books_js.py # books.csv から books.js を生成
+```
+
 ## 補足
 
 - 本のリストは `books.js` にシードデータとして同梱しています(初期表示は2005年以降
