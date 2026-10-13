@@ -1,23 +1,42 @@
+/* ライト: 図書館の書架(くるみ色) / ダーク: ランドセルの紺。端末のダークモード設定で切り替わる */
 :root{
-  --paper:#F2EFE4;
-  --card:#FBFAF3;
-  --ink:#2A271F;
-  --muted:#7A7360;
-  --rule:#DBD3BC;
-  --accent:#1E5C54;
-  --accent-ink:#F4FBF9;
-  --accent-soft:#DFEBE6;
-  --ok:#256B3C;
-  --ok-soft:#E1EFE3;
-  --busy:#9C6A0B;
-  --busy-soft:#F3E9D3;
-  --read:#6B5B3E;
-  --read-soft:#EEE4CF;
-  --disliked:#A63A31;
-  --disliked-soft:#F4E1DD;
-  --shadow: 0 1px 2px rgba(42,39,31,0.06), 0 6px 16px rgba(42,39,31,0.05);
+  --paper:#F6F5F2;
+  --card:#FFFFFF;
+  --ink:#26221E;
+  --muted:#6B645C;
+  --rule:#E0DCD5;
+  --accent:#7A4E2D;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#F1E7DD;
+  --ok:#2F7A3B;
+  --ok-soft:#E3F1E3;
+  --busy:#966200;
+  --busy-soft:#F8EDD3;
+  --read:#4F5590;
+  --read-soft:#E7E8F3;
+  --disliked:#B23A3A;
+  --disliked-soft:#F8E1E1;
+  --shadow: 0 1px 2px rgba(38,34,30,0.06), 0 6px 16px rgba(38,34,30,0.05);
   --font:"Noto Sans JP","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
   color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10141D; --card:#181E2A; --ink:#E8ECF4; --muted:#9AA3B5; --rule:#2B3344;
+    --accent:#93B2F0; --accent-ink:#0E1420; --accent-soft:#1E2A44;
+    --ok:#63CF96; --ok-soft:#16301F; --busy:#F2B661; --busy-soft:#3A2B14;
+    --read:#D8C597; --read-soft:#33301F; --disliked:#F08A7E; --disliked-soft:#3E1F1B;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10141D; --card:#181E2A; --ink:#E8ECF4; --muted:#9AA3B5; --rule:#2B3344;
+  --accent:#93B2F0; --accent-ink:#0E1420; --accent-soft:#1E2A44;
+  --ok:#63CF96; --ok-soft:#16301F; --busy:#F2B661; --busy-soft:#3A2B14;
+  --read:#D8C597; --read-soft:#33301F; --disliked:#F08A7E; --disliked-soft:#3E1F1B;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+  color-scheme:dark;
 }
 
 *{ box-sizing:border-box; }
@@ -172,10 +191,10 @@ input:focus-visible, select:focus-visible, a.btn:focus-visible, button:focus-vis
   transition:background-color .15s ease, color .15s ease;
 }
 .btn:hover, button.btn:hover{ background:var(--accent-soft); }
-.btn-primary{ background:var(--accent); color:var(--accent-ink); }
-.btn-primary:hover{ filter:brightness(1.06); background:var(--accent); }
-.btn-ghost{ border-color:var(--rule); color:var(--muted); }
-.btn-ghost:hover{ background:var(--rule); color:var(--ink); }
+.btn.btn-primary{ background:var(--accent); color:var(--accent-ink); }
+.btn.btn-primary:hover{ filter:brightness(1.06); background:var(--accent); }
+.btn.btn-ghost{ border-color:var(--rule); color:var(--muted); }
+.btn.btn-ghost:hover{ background:var(--rule); color:var(--ink); }
 .btn-small{ font-size:.78rem; padding:.35rem .7rem; }
 button:disabled{ opacity:.5; cursor:not-allowed; }
 
