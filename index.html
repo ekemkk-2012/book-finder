@@ -13,8 +13,8 @@
     <p class="eyebrow">図書カード / LIBRARY LOOKUP CARD</p>
     <h1>小学1〜6年生 おすすめ図書 蔵書照会</h1>
     <p class="lede">
-      2015年以降に刊行された小学1〜6年生向けの本36冊を、学年で絞り込みながら、
-      <a href="https://calil.jp" target="_blank" rel="noopener">カーリル</a>で指定した地域の図書館の蔵書と照合します。
+      小学1〜6年生向けのおすすめ本を学年で絞り込み、
+      <a href="https://calil.jp" target="_blank" rel="noopener">カーリル</a>で指定した地域の図書館に所蔵がある本だけを候補として表示します。
     </p>
   </div>
 </header>
@@ -87,7 +87,7 @@
           <span class="field-label">タイトル・著者<i>ワードサーチ</i></span>
           <input type="text" id="keyword" placeholder="例: ゾロリ">
         </label>
-        <button type="button" id="checkBtn" class="btn btn-primary">選択した図書館の蔵書状況を確認する</button>
+        <button type="button" id="checkBtn" class="btn btn-primary">所蔵を再確認する</button>
       </div>
       <p class="status-line" id="bookStatus" role="status"></p>
       <button type="button" id="showAllToggle" class="btn btn-ghost btn-small hidden">すべて表示する</button>
@@ -103,7 +103,6 @@
         <table id="bookTable">
           <thead>
             <tr>
-              <th class="col-check"><span class="sr-only">確認対象</span>☑</th>
               <th>タイトル</th>
               <th>著者</th>
               <th>出版社</th>
