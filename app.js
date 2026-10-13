@@ -320,14 +320,21 @@ function restoreBook(isbn) {
   renderSeriesPanel();
 }
 
-/* 表示中の候補(shownIsbns)を、条件に合わなくなった本を除きつつ、
- * 上限(VISIBLE_LIMIT)まで条件に合う未表示の本で埋め直す */
+/* 表示中の候補(shownIsbns)を、条件に合わなくなった本をその場で次の未表示の本に
+ * 入れ替えつつ(末尾に追い出さず、同じ行の位置で差し替える)、上限(VISIBLE_LIMIT)
+ * まで埋め直す */
 function refillVisibleSlate(pool) {
   const poolIsbns = new Set(pool.map((b) => b.isbn));
-  state.shownIsbns = state.shownIsbns.filter((isbn) => poolIsbns.has(isbn));
-  for (const b of pool) {
-    if (state.shownIsbns.length >= VISIBLE_LIMIT) break;
-    if (!state.shownIsbns.includes(b.isbn)) state.shownIsbns.push(b.isbn);
+  const shownSet = new Set(state.shownIsbns);
+  const nextCandidates = pool.map((b) => b.isbn).filter((isbn) => !shownSet.has(isbn));
+  let ci = 0;
+  for (let i = 0; i < state.shownIsbns.length; i++) {
+    if (poolIsbns.has(state.shownIsbns[i])) continue;
+    state.shownIsbns[i] = ci < nextCandidates.length ? nextCandidates[ci++] : null;
+  }
+  state.shownIsbns = state.shownIsbns.filter((isbn) => isbn !== null);
+  while (state.shownIsbns.length < VISIBLE_LIMIT && ci < nextCandidates.length) {
+    state.shownIsbns.push(nextCandidates[ci++]);
   }
 }
 
