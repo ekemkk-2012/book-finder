@@ -58,6 +58,8 @@ def normalize_fix(field, value):
 
 
 def status_for(sources):
+    if not sources:
+        return "unverified"
     return "verified" if len(sources) >= 2 else "single_source"
 
 
@@ -69,7 +71,7 @@ def main():
 
     rows = read_rows()
     by_isbn = {r["isbn"]: r for r in rows}
-    stats = {"verified": 0, "single_source": 0, "wrong": 0, "unverified_note": 0, "added": 0, "skipped": []}
+    stats = {"verified": 0, "single_source": 0, "unverified": 0, "wrong": 0, "unverified_note": 0, "added": 0, "skipped": []}
 
     for path in args.verify:
         for res in load_jsonl(path):
