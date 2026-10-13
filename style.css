@@ -18,7 +18,8 @@
   --shadow: 0 1px 2px rgba(42,39,31,0.06), 0 6px 16px rgba(42,39,31,0.05);
 }
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
     --paper:#181A16;
     --card:#212319;
     --ink:#EAE5D6;
@@ -39,6 +40,7 @@
   }
 }
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --paper:#181A16; --card:#212319; --ink:#EAE5D6; --muted:#A39C87; --rule:#3A3D30;
   --accent:#6FBFAE; --accent-ink:#0E1512; --accent-soft:#213531;
   --ok:#5FBE81; --ok-soft:#1E3324; --busy:#E0A83E; --busy-soft:#3A2F16;
