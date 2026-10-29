@@ -1,56 +1,42 @@
+/* ライト: 図書館の書架(くるみ色) / ダーク: ランドセルの紺。端末のダークモード設定で切り替わる */
 :root{
-  --paper:#F2EFE4;
-  --card:#FBFAF3;
-  --ink:#2A271F;
-  --muted:#7A7360;
-  --rule:#DBD3BC;
-  --accent:#1E5C54;
-  --accent-ink:#F4FBF9;
-  --accent-soft:#DFEBE6;
-  --ok:#256B3C;
-  --ok-soft:#E1EFE3;
-  --busy:#9C6A0B;
-  --busy-soft:#F3E9D3;
-  --read:#6B5B3E;
-  --read-soft:#EEE4CF;
-  --disliked:#A63A31;
-  --disliked-soft:#F4E1DD;
-  --shadow: 0 1px 2px rgba(42,39,31,0.06), 0 6px 16px rgba(42,39,31,0.05);
+  --paper:#F6F5F2;
+  --card:#FFFFFF;
+  --ink:#26221E;
+  --muted:#6B645C;
+  --rule:#E0DCD5;
+  --accent:#7A4E2D;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#F1E7DD;
+  --ok:#2F7A3B;
+  --ok-soft:#E3F1E3;
+  --busy:#966200;
+  --busy-soft:#F8EDD3;
+  --read:#4F5590;
+  --read-soft:#E7E8F3;
+  --disliked:#B23A3A;
+  --disliked-soft:#F8E1E1;
+  --shadow: 0 1px 2px rgba(38,34,30,0.06), 0 6px 16px rgba(38,34,30,0.05);
+  --font:"Noto Sans JP","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
-  :root{
-    --paper:#181A16;
-    --card:#212319;
-    --ink:#EAE5D6;
-    --muted:#A39C87;
-    --rule:#3A3D30;
-    --accent:#6FBFAE;
-    --accent-ink:#0E1512;
-    --accent-soft:#213531;
-    --ok:#5FBE81;
-    --ok-soft:#1E3324;
-    --busy:#E0A83E;
-    --busy-soft:#3A2F16;
-    --read:#D8C48F;
-    --read-soft:#37311E;
-    --disliked:#E58176;
-    --disliked-soft:#3B2320;
+  :root:not([data-theme="light"]){
+    --paper:#10141D; --card:#181E2A; --ink:#E8ECF4; --muted:#9AA3B5; --rule:#2B3344;
+    --accent:#93B2F0; --accent-ink:#0E1420; --accent-soft:#1E2A44;
+    --ok:#63CF96; --ok-soft:#16301F; --busy:#F2B661; --busy-soft:#3A2B14;
+    --read:#D8C597; --read-soft:#33301F; --disliked:#F08A7E; --disliked-soft:#3E1F1B;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+    color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#181A16; --card:#212319; --ink:#EAE5D6; --muted:#A39C87; --rule:#3A3D30;
-  --accent:#6FBFAE; --accent-ink:#0E1512; --accent-soft:#213531;
-  --ok:#5FBE81; --ok-soft:#1E3324; --busy:#E0A83E; --busy-soft:#3A2F16;
-  --read:#D8C48F; --read-soft:#37311E; --disliked:#E58176; --disliked-soft:#3B2320;
+  --paper:#10141D; --card:#181E2A; --ink:#E8ECF4; --muted:#9AA3B5; --rule:#2B3344;
+  --accent:#93B2F0; --accent-ink:#0E1420; --accent-soft:#1E2A44;
+  --ok:#63CF96; --ok-soft:#16301F; --busy:#F2B661; --busy-soft:#3A2B14;
+  --read:#D8C597; --read-soft:#33301F; --disliked:#F08A7E; --disliked-soft:#3E1F1B;
   --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
-}
-:root[data-theme="light"]{
-  --paper:#F2EFE4; --card:#FBFAF3; --ink:#2A271F; --muted:#7A7360; --rule:#DBD3BC;
-  --accent:#1E5C54; --accent-ink:#F4FBF9; --accent-soft:#DFEBE6;
-  --ok:#256B3C; --ok-soft:#E1EFE3; --busy:#9C6A0B; --busy-soft:#F3E9D3;
-  --read:#6B5B3E; --read-soft:#EEE4CF; --disliked:#A63A31; --disliked-soft:#F4E1DD;
-  --shadow: 0 1px 2px rgba(42,39,31,0.06), 0 6px 16px rgba(42,39,31,0.05);
+  color-scheme:dark;
 }
 
 *{ box-sizing:border-box; }
@@ -58,7 +44,7 @@ html,body{ margin:0; }
 body{
   background:var(--paper);
   color:var(--ink);
-  font-family:"Hiragino Sans","Yu Gothic Medium","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  font-family:var(--font);
   line-height:1.7;
   -webkit-font-smoothing:antialiased;
 }
@@ -67,7 +53,7 @@ main{ max-width:840px; margin:0 auto; padding:0 1.25rem 3rem; }
 .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
 
 code{
-  font-family:"SFMono-Regular","SF Mono",Consolas,"Liberation Mono",monospace;
+  font-family:var(--font);
   font-size:.85em;
   background:var(--accent-soft);
   padding:.05rem .35rem;
@@ -87,7 +73,7 @@ code{
 }
 .eyebrow{
   margin:0 0 .6rem;
-  font-family:"SFMono-Regular","SF Mono",Consolas,"Liberation Mono",monospace;
+  font-family:var(--font);
   font-size:.72rem;
   letter-spacing:.14em;
   color:var(--accent);
@@ -95,8 +81,8 @@ code{
 }
 h1{
   margin:0 0 .7rem;
-  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
-  font-weight:600;
+  font-family:var(--font);
+  font-weight:700;
   font-size:clamp(1.5rem, 1.1rem + 1.6vw, 2.05rem);
   letter-spacing:.02em;
   text-wrap:balance;
@@ -121,7 +107,7 @@ h1{
   padding:1rem 1.3rem .1rem;
 }
 .tab-num{
-  font-family:"SFMono-Regular","SF Mono",Consolas,monospace;
+  font-family:var(--font);
   font-size:.78rem; color:var(--accent);
   border:1px solid var(--accent-soft);
   background:var(--accent-soft);
@@ -131,12 +117,12 @@ h1{
 }
 .card-tab h2{
   margin:0; font-size:1.02rem; font-weight:700;
-  font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+  font-family:var(--font);
 }
 .card-tab h2 i, .card-tab i.opt{
   font-style:normal; color:var(--muted); font-weight:500;
   font-size:.72rem; margin-left:.5rem;
-  font-family:"Hiragino Sans","Yu Gothic",sans-serif;
+  font-family:var(--font);
 }
 .card-body{ padding:.5rem 1.3rem 1.3rem; }
 
@@ -159,7 +145,7 @@ h1{
 }
 .field-label i{
   font-style:normal; margin-left:.4rem;
-  font-family:"SFMono-Regular","SF Mono",Consolas,monospace;
+  font-family:var(--font);
   font-size:.66rem; color:var(--accent);
   border:1px solid var(--accent-soft); border-radius:4px; padding:.05rem .3rem;
 }
@@ -186,7 +172,7 @@ input[type="text"], input[type="password"], select{
   color:var(--ink);
   min-width:14ch;
 }
-input[type="password"]{ min-width:26ch; font-family:"SFMono-Regular","SF Mono",monospace; }
+input[type="password"]{ min-width:26ch; font-family:var(--font); }
 input:focus-visible, select:focus-visible, a.btn:focus-visible, button:focus-visible{
   outline:2px solid var(--accent); outline-offset:2px;
 }
@@ -205,10 +191,10 @@ input:focus-visible, select:focus-visible, a.btn:focus-visible, button:focus-vis
   transition:background-color .15s ease, color .15s ease;
 }
 .btn:hover, button.btn:hover{ background:var(--accent-soft); }
-.btn-primary{ background:var(--accent); color:var(--accent-ink); }
-.btn-primary:hover{ filter:brightness(1.06); background:var(--accent); }
-.btn-ghost{ border-color:var(--rule); color:var(--muted); }
-.btn-ghost:hover{ background:var(--rule); color:var(--ink); }
+.btn.btn-primary{ background:var(--accent); color:var(--accent-ink); }
+.btn.btn-primary:hover{ filter:brightness(1.06); background:var(--accent); }
+.btn.btn-ghost{ border-color:var(--rule); color:var(--muted); }
+.btn.btn-ghost:hover{ background:var(--rule); color:var(--ink); }
 .btn-small{ font-size:.78rem; padding:.35rem .7rem; }
 button:disabled{ opacity:.5; cursor:not-allowed; }
 
@@ -233,7 +219,7 @@ button:disabled{ opacity:.5; cursor:not-allowed; }
   font-size:.86rem;
 }
 .lib-name{ font-weight:700; }
-.lib-sub{ color:var(--muted); font-size:.76rem; font-family:"SFMono-Regular","SF Mono",monospace; }
+.lib-sub{ color:var(--muted); font-size:.76rem; font-family:var(--font); }
 .lib-branches{ margin-top:.35rem; display:flex; flex-direction:column; gap:.2rem; }
 .lib-branch{
   display:flex; align-items:baseline; justify-content:space-between; gap:.5rem; flex-wrap:wrap;
@@ -257,7 +243,7 @@ thead th{
 tbody td{ padding:.6rem .6rem; border-bottom:1px solid var(--rule); vertical-align:top; }
 tbody tr:last-child td{ border-bottom:none; }
 tbody tr:hover{ background:var(--accent-soft); }
-.isbn-cell{ font-family:"SFMono-Regular","SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.isbn-cell{ font-family:var(--font); font-variant-numeric:tabular-nums; white-space:nowrap; }
 td:nth-child(5), .pages-cell{ font-variant-numeric:tabular-nums; white-space:nowrap; }
 .pages-cell{ color:var(--muted); text-align:right; }
 .series-tag{
