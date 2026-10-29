@@ -221,6 +221,7 @@ const state = {
   checkRerun: false,
   checkError: "",
   checkIncomplete: false,
+  checkGen: 0, // 図書館の検索・選択・再確認のたびに進め、古い照会の結果やエラーを捨てる
   renderedIsbns: [],
   shownIsbns: [], // 現在表示中の候補(苦手・既読にすると自動で次の候補に入れ替わる)
   showAll: false, // 「すべて表示」モードかどうか
@@ -296,17 +297,31 @@ function libraryActive() {
   return state.librarySystems.length > 0 && state.selectedSystemIds.size > 0;
 }
 
-/* 図書館名フィルタに一致する館のlibkey集合(フィルタなしならnull=全館) */
-function allowedLibkeys(systemid) {
-  const kw = state.branchFilter.trim().toLowerCase();
-  if (!kw) return null;
-  const sys = state.librarySystems.find((s) => s.systemid === systemid);
-  if (!sys) return null;
+/* 図書館名フィルタに一致する館のlibkey集合(null=全館)。システム名に一致した場合と、
+ * 選択中のどのシステムにも一致しない場合は絞り込まない(一覧の表示と揃える) */
+function branchMatches(sys, kw) {
   return new Set(
     sys.branches
       .filter((br) => br.name.toLowerCase().includes(kw) || br.libkey.toLowerCase().includes(kw))
       .map((br) => br.libkey)
   );
+}
+
+function branchFilterApplies() {
+  const kw = state.branchFilter.trim().toLowerCase();
+  if (!kw) return false;
+  return state.librarySystems.some(
+    (s) => state.selectedSystemIds.has(s.systemid) &&
+      (s.systemname.toLowerCase().includes(kw) || branchMatches(s, kw).size > 0)
+  );
+}
+
+function allowedLibkeys(systemid) {
+  if (!branchFilterApplies()) return null;
+  const kw = state.branchFilter.trim().toLowerCase();
+  const sys = state.librarySystems.find((s) => s.systemid === systemid);
+  if (!sys || sys.systemname.toLowerCase().includes(kw)) return null;
+  return branchMatches(sys, kw);
 }
 
 /* state: unchecked | checking | held | notHeld | pending(照会が時間内に終わらず) | error */
@@ -317,11 +332,11 @@ function holdingInfo(isbn) {
   if (!per || sids.some((sid) => !per[sid])) return { state: "unchecked", systems: [] };
   let anyHeld = false;
   let anyRunning = false;
-  let allError = true;
+  let anyError = false;
   const systems = sids.map((sid) => {
     const info = per[sid];
     if (info.status === "Running") anyRunning = true;
-    if (info.status !== "Error") allError = false;
+    if (info.status === "Error") anyError = true;
     const allowed = allowedLibkeys(sid);
     const entries = Object.entries(info.libkey || {}).filter(
       ([key, st]) => st !== "蔵書なし" && (!allowed || allowed.has(key))
@@ -329,7 +344,8 @@ function holdingInfo(isbn) {
     if (entries.length) anyHeld = true;
     return { sid, info, entries };
   });
-  const st = anyHeld ? "held" : anyRunning ? "pending" : allError ? "error" : "notHeld";
+  // 所蔵なしと言えるのは、選択中の全システムが正常に「所蔵なし」と答えたときだけ
+  const st = anyHeld ? "held" : anyRunning ? "pending" : anyError ? "error" : "notHeld";
   return { state: st, systems };
 }
 
@@ -514,8 +530,16 @@ function scheduleHoldingCheck() {
   runHoldingCheck();
 }
 
+/* 選択した図書館が変わったとき: 進行中の古い照会の結果・エラーを無効にする */
+function bumpCheckGen() {
+  state.checkGen++;
+  state.checkError = "";
+  state.checkIncomplete = false;
+}
+
 async function runHoldingCheck() {
   state.checking = true;
+  let gen = state.checkGen;
   try {
     for (;;) {
       state.checkRerun = false;
@@ -523,6 +547,7 @@ async function runHoldingCheck() {
       const targets = state.renderedIsbns.filter((isbn) => holdingInfo(isbn).state === "unchecked");
       if (!targets.length) break;
       const batch = targets.slice(0, CHECK_BATCH_SIZE);
+      gen = state.checkGen;
       const systemids = Array.from(state.selectedSystemIds);
       batch.forEach((isbn) => state.inFlight.add(isbn));
       renderBookTable();
@@ -532,6 +557,7 @@ async function runHoldingCheck() {
       } finally {
         batch.forEach((isbn) => state.inFlight.delete(isbn));
       }
+      if (gen !== state.checkGen) break;
       if (data.continue === 1) state.checkIncomplete = true;
       for (const isbn of batch) {
         const per = (state.holdings[isbn] = state.holdings[isbn] || {});
@@ -543,7 +569,7 @@ async function runHoldingCheck() {
       renderBookTable();
     }
   } catch (err) {
-    state.checkError = err.message;
+    if (gen === state.checkGen) state.checkError = err.message;
   } finally {
     state.checking = false;
     renderBookTable();
@@ -557,8 +583,7 @@ function handleRecheckHoldings() {
   }
   if (state.checking) return;
   state.holdings = {};
-  state.checkError = "";
-  state.checkIncomplete = false;
+  bumpCheckGen();
   renderBookTable();
 }
 
@@ -697,12 +722,14 @@ function renderLibraryResults() {
   document.getElementById("selAllLib").addEventListener("click", () => {
     el.libResults.querySelectorAll(".lib-check").forEach((cb) => { cb.checked = true; state.selectedSystemIds.add(cb.value); });
     persistLibrarySelection();
+    bumpCheckGen();
     renderBookTable();
   });
   document.getElementById("selNoneLib").addEventListener("click", () => {
     el.libResults.querySelectorAll(".lib-check").forEach((cb) => { cb.checked = false; });
     state.selectedSystemIds.clear();
     persistLibrarySelection();
+    bumpCheckGen();
     renderBookTable();
   });
   el.libResults.querySelectorAll(".lib-check").forEach((cb) => {
@@ -710,6 +737,7 @@ function renderLibraryResults() {
       if (cb.checked) state.selectedSystemIds.add(cb.value);
       else state.selectedSystemIds.delete(cb.value);
       persistLibrarySelection();
+      bumpCheckGen();
       renderBookTable();
     });
   });
@@ -751,7 +779,7 @@ async function handleSearchLibraries() {
     el.libStatus.textContent = systems.length
       ? `${systems.length}件の図書館システムが見つかりました。図書館名で絞り込めます。`
       : "図書館が見つかりませんでした。市区町村名を確認してください。";
-    state.checkError = "";
+    bumpCheckGen();
     renderBookTable();
   } catch (err) {
     el.libStatus.textContent = "エラー: " + err.message + " (「この地域の図書館一覧をカーリルで見る」からも探せます)";
@@ -841,10 +869,14 @@ function init() {
   if (el.city.value.trim()) {
     handleSearchLibraries();
   }
+  let branchFilterTimer = null;
   el.branchFilter.addEventListener("input", () => {
-    state.branchFilter = el.branchFilter.value;
-    renderLibraryResults();
-    renderBookTable();
+    clearTimeout(branchFilterTimer);
+    branchFilterTimer = setTimeout(() => {
+      state.branchFilter = el.branchFilter.value;
+      renderLibraryResults();
+      renderBookTable();
+    }, 300);
   });
   el.minYear.addEventListener("change", () => {
     state.minYear = parseInt(el.minYear.value, 10);
